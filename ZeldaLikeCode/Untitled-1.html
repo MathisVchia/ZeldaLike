@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" /><title>Mon 1er jeu Phaser</title>
+        <script
+            src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+        <style type="text/css"> body { margin: 0; }</style>
+    </head>
+        <body>
+            <script type="text/javascript">            
+
+                
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+
+    var player;
+    var npc;
+    var mob;
+    var cursors;
+    var interactButton;
+    var dialogueBox;
+    var dialogueText;
+
+    function preload() {
+        this.load.image('player', 'assets/player.png');
+        this.load.image('npc', 'assets/npc.png');
+        this.load.image('npc', 'assets/mob.png');
+    }
+
+    function create() {
+        // Create player sprite and enable physics
+        player = this.physics.add.sprite(100, 450, 'player');
+        player.setCollideWorldBounds(true);
+
+        // Create NPC sprite and enable physics
+        npc = this.physics.add.staticSprite(700, 450, 'npc');
+        //npc.setCollideWorldBounds(true);
+
+        // Create NPC sprite and enable physics
+        mob = this.physics.add.sprite(300, 450, 'mob');
+        mob.setCollideWorldBounds(true);
+
+        // Create cursors object for player movement
+        cursors = this.input.keyboard.createCursorKeys();
+
+        // Create interact button
+        interactButton = this.input.keyboard.addKey('E');
+
+        // Create attack button
+        attackButton = this.input.keyboard.addKey('SPACE');
+
+        // Create dialogue box and text
+        dialogueBox = this.add.graphics();
+        dialogueBox.fillStyle(0x222222, 0.8);
+        dialogueBox.fillRect(50, 50, 700, 100);
+        dialogueText = this.add.text(100, 70, '', { font: '24px Arial', fill: '#ffffff' });
+        dialogueText.setWordWrapWidth(600);
+
+        // Set up collision between player and npc
+        this.physics.add.collider(player, mob);
+        //this.physics.add.collider(player, npc);
+
+        
+        // Set up overlap between player and npc for interaction
+        this.physics.add.overlap(player, npc, showDialogue);
+
+        // Set up overlap between player and mob for attack
+        this.physics.add.overlap(player, mob, showAttack);
+
+    }
+
+    function update() {
+        // Player movement
+        if (cursors.left.isDown) {
+            player.setVelocityX(-160);
+        } else if (cursors.right.isDown) {
+            player.setVelocityX(160);
+        } else {
+            player.setVelocityX(0);
+        }
+        
+        if (cursors.up.isDown) {
+            player.setVelocityY(-160);
+        } else if (cursors.down.isDown) {
+            player.setVelocityY(160);
+        } 
+        else {
+            player.setVelocityY(0);
+        }
+
+        // Player jumping
+        if (cursors.up.isDown && player.body.touching.down) {
+            player.setVelocityY(-330);
+        }
+
+        // Hide dialogue box when interact button is released
+        if (Phaser.Input.Keyboard.JustUp(interactButton)) {
+            dialogueBox.visible = false;
+            dialogueText.setText('');
+        }
+    }
+
+    function showAttack(){
+        // Generate sentence attack
+        var attackTxt = [
+            "Tu attaques !"
+        ];
+        // var attack = attackTxt[randomIndex];
+
+        // Show the sentence when attack is true
+        if (Phaser.Input.Keyboard.JustUp(attackButton)) {
+        dialogueBox.visible = true;
+        dialogueText.setText(attackTxt);
+        }
+    }
+    function showDialogue() {
+        // Generate a random dialogue
+        var dialogue = [
+            "Ah tu es enfin là!",
+        ];
+        //var randomIndex = Math.floor(Math.random() * dialogues.length);
+        //var dialogue = dialogues[randomIndex];
+
+        // Show dialogue box and text
+        if (Phaser.Input.Keyboard.JustUp(interactButton)) {
+        dialogueBox.visible = true;
+        dialogueText.setText(dialogue);
+
+        }
+    }
+
+        </script>
+    </body>
+</html>
